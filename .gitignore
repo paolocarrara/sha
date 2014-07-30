@@ -1,0 +1,7 @@
+sha1
+Makefile
+main.c
+obj/
+*.*~
+*.*.swp
+
