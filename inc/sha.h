@@ -1,7 +1,7 @@
 #ifndef SHA_H
 #define SHA_H
 
-/*#ifdef: compilation problens due to only one identifier is legal/accepted, however the #if may not be a good solution..*/
+/*#ifdef: compilation problems due to only one identifier is legal/accepted, however the #if may not be a good solution..*/
 #if __amd64__ ||  __amd64 || __x86_64__ || __x86_64
 #define ARCHITECTURE64
 #else
@@ -42,7 +42,7 @@
 /* rot left for 32 bit values*/
 #define ROTL32(a, l) (((a)<<(l)) + ((a)>>(0x20-l)))
 
-/* pre processing function commom to all SHA hashe functions*/
+/* pre processing function common to all SHA hashe functions*/
 #ifdef ARCHITECTURE64
 uint8_t **pre_process	(uint8_t *, uint64_t, uint64_t *, uint8_t);
 #else
