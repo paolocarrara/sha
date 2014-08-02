@@ -36,7 +36,7 @@ uint8_t **pre_process (uint8_t *M, uint64_t sz, uint64_t *const N, const uint8_t
 uint8_t **pre_process (uint8_t *M, uint32_t sz, uint32_t *const N, const uint8_t sha_t)
 #endif
 {
-	uint8_t **Mp;
+	uint8_t **Mp = NULL;
 
 	if ( vrf_sz (sz, sha_t) ) {
 		M = padd (M, &sz, sha_t);
@@ -94,18 +94,14 @@ static uint8_t *padd (uint8_t *M, uint32_t *const sz, const uint8_t sha_t)
 		r = ((*sz)+9)%SHA_512_BLOCK;
 		g = SHA_512_BLOCK - r;
 	}
-	else if (sha_t == SHA384_T || sha_t == SHA512_T || sha_t == SHA512_224_T || sha_t == SHA512_256_T) {
+	else /*(sha_t == SHA384_T || sha_t == SHA512_T || sha_t == SHA512_224_T || sha_t == SHA512_256_T)*/ {
 		M = realloc (M, (*sz)+1);
 		M[(*sz)] = 0x80;
 		r = ((*sz)+8)%SHA_1024_BLOCK;
 		g = SHA_1024_BLOCK - r;
 	}
-	else {
-		/*SHA_T NOT FOUND*/
-	}
 
 	M = realloc (M, (*sz)+g+9);
-
 
 	if (sha_t == SHA1_T || sha_t == SHA224_T || sha_t == SHA256_T) {
 		memset (M+((*sz)+1), 0, g+4);
@@ -150,7 +146,7 @@ static uint8_t **prsng (uint8_t * const M, const uint32_t sz, uint32_t *const N,
 		for (i = 0; i < (*N); i++)
 			blocks[i] = M+(i*64);
 	}
-	else if (sha_t == SHA384_T || sha_t == SHA512_T || sha_t == SHA512_224_T || sha_t == SHA512_256_T) {
+	else/* if (sha_t == SHA384_T || sha_t == SHA512_T || sha_t == SHA512_224_T || sha_t == SHA512_256_T) */{
 		(*N) = sz/SHA_1024_BLOCK;
 		blocks = malloc ((*N)*sizeof(uint8_t *));
 		for (i = 0; i < (*N); i++)

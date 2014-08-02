@@ -5,9 +5,6 @@
 #define Hsize		0x05
 #define ABCDEsize	0x05
 
-__attribute__((always_inline, optimize("O3"), nonnull))
-static inline void setH	(uint32_t *const);
-
 __attribute__((always_inline, optimize("O3"), nonnull, pure, hot))
 static inline void schedule	(uint32_t *const, const uint8_t *const);
 
@@ -15,10 +12,10 @@ __attribute__((always_inline, optimize("O3"), warn_unused_result, hot))
 static inline uint32_t f	(const uint32_t, const uint32_t, const uint32_t, const uint32_t);
 
 #ifdef ARCHITECTURE64
-__attribute__((flatten, optimize("O3")))
+__attribute__((flatten, optimize("O3","-funroll-loops")))
 uint32_t *sha1 (uint8_t **const M, uint64_t N)
 #else
-__attribute__((flatten, optimize("O3")))
+__attribute__((flatten, optimize("O3","-funroll-loops")))
 uint32_t *sha1 (uint8_t **const M, uint32_t N)
 #endif
 {
@@ -36,7 +33,11 @@ uint32_t *sha1 (uint8_t **const M, uint32_t N)
 	uint32_t K [Ksize] = {[0 ... 19] = 0x5a827999, [20 ... 39] = 0x6ed9eba1, [40 ... 59] = 0x8f1bbcdc, [60 ... 79] = 0xca62c1d6};
 	uint32_t W [Wsize];
 
-	setH (H);
+	H[0] = 0x67452301;
+	H[1] = 0xefcdab89;
+	H[2] = 0x98badcfe;
+	H[3] = 0x10325476;
+	H[4] = 0xc3d2e1f0;
 
 	for (i = 0; i < N; i++) {
 
@@ -61,16 +62,6 @@ uint32_t *sha1 (uint8_t **const M, uint32_t N)
 	}
 
 	return H;
-}
-
-__attribute__((always_inline, optimize("O3"), nonnull))
-static void setH (uint32_t *const H)
-{
-	H[0] = 0x67452301;
-	H[1] = 0xefcdab89;
-	H[2] = 0x98badcfe;
-	H[3] = 0x10325476;
-	H[4] = 0xc3d2e1f0;
 }
 
 __attribute__((always_inline, optimize("O3"), nonnull, pure, hot))
