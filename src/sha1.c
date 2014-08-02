@@ -5,13 +5,20 @@
 #define Hsize		0x05
 #define ABCDEsize	0x05
 
-static void setKH	(uint32_t *const, uint32_t *const);
-static void schedule	(uint32_t *const, const uint8_t *const);
-static uint32_t f	(const uint32_t, const uint32_t, const uint32_t, const uint32_t);
+__attribute__((always_inline, optimize("O3"), nonnull))
+static inline void setH	(uint32_t *const);
+
+__attribute__((always_inline, optimize("O3"), nonnull, pure, hot))
+static inline void schedule	(uint32_t *const, const uint8_t *const);
+
+__attribute__((always_inline, optimize("O3"), warn_unused_result, hot))
+static inline uint32_t f	(const uint32_t, const uint32_t, const uint32_t, const uint32_t);
 
 #ifdef ARCHITECTURE64
+__attribute__((flatten, optimize("O3")))
 uint32_t *sha1 (uint8_t **const M, uint64_t N)
 #else
+__attribute__((flatten, optimize("O3")))
 uint32_t *sha1 (uint8_t **const M, uint32_t N)
 #endif
 {
@@ -25,11 +32,11 @@ uint32_t *sha1 (uint8_t **const M, uint32_t N)
 	/*Variables of the specifications*/
 	uint32_t T;
 	uint32_t *const H = malloc (Hsize*sizeof (uint32_t));
-	uint32_t *const K = malloc (Ksize*sizeof (uint32_t));
-	uint32_t *const W = malloc (Wsize*sizeof (uint32_t));
-	uint32_t abcde[ABCDEsize];
+	uint32_t abcde [ABCDEsize];
+	uint32_t K [Ksize] = {[0 ... 19] = 0x5a827999, [20 ... 39] = 0x6ed9eba1, [40 ... 59] = 0x8f1bbcdc, [60 ... 79] = 0xca62c1d6};
+	uint32_t W [Wsize];
 
-	setKH (K, H);
+	setH (H);
 
 	for (i = 0; i < N; i++) {
 
@@ -53,31 +60,12 @@ uint32_t *sha1 (uint8_t **const M, uint32_t N)
 		}
 	}
 
-	free (K);
-	free (W);
-
 	return H;
 }
 
-static void setKH (uint32_t *const K, uint32_t *const H)
+__attribute__((always_inline, optimize("O3"), nonnull))
+static void setH (uint32_t *const H)
 {
-	int8_t i = 80;
-
-	while (i-->0) {
-		if (i >= 60) {
-			K[i] = 0xca62c1d6;
-		}
-		else if (i >= 40) {
-			K[i] = 0x8f1bbcdc;
-		}
-		else if (i >= 20) {
-			K[i] = 0x6ed9eba1;
-		}
-		else if (i >= 0) {
-			K[i] = 0x5a827999;
-		}
-	}
-
 	H[0] = 0x67452301;
 	H[1] = 0xefcdab89;
 	H[2] = 0x98badcfe;
@@ -85,6 +73,7 @@ static void setKH (uint32_t *const K, uint32_t *const H)
 	H[4] = 0xc3d2e1f0;
 }
 
+__attribute__((always_inline, optimize("O3"), nonnull, pure, hot))
 static void schedule (uint32_t *const W, const uint8_t *const M)
 {
 	uint8_t i;
@@ -107,6 +96,7 @@ static void schedule (uint32_t *const W, const uint8_t *const M)
 	}
 }
 
+__attribute__((always_inline, optimize("O3"), warn_unused_result, hot))
 static uint32_t f (const uint32_t b, const uint32_t c, const uint32_t d, const uint32_t t)
 {
 	if (t >= 60) {
