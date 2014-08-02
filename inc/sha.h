@@ -17,10 +17,6 @@
 #define SHA_512_BLOCK	64
 #define SHA_1024_BLOCK	128
 
-/*Max message sizes*/
-#define MAX_2_TO_64	0xffffffffffffffff
-#define MAX_2_TO_128	0xffffffffffffffff/*ffffffffffffffff*/
-
 /* SHA types */
 #define SHA1_T		0x01
 #define SHA224_T	0x02
@@ -29,6 +25,10 @@
 #define SHA512_T	0x05
 #define SHA512_224_T	0x06
 #define SHA512_256_T	0x07
+
+/**/
+#define MIN_REALL_SZ	0x09
+#define DFLT_FRST_BYT	0x80
 
 /* parity macro/function */
 #define PA(a, b, c) (a^b^c)
@@ -41,12 +41,5 @@
 
 /* rot left for 32 bit values*/
 #define ROTL32(a, l) (((a)<<(l)) + ((a)>>(0x20-l)))
-
-/* pre processing function common to all SHA hashe functions*/
-#ifdef ARCHITECTURE64
-uint8_t **pre_process	(uint8_t *, uint64_t, uint64_t *, uint8_t);
-#else
-uint8_t **pre_process	(uint8_t *, uint32_t, uint32_t *, uint8_t);
-#endif
 
 #endif

@@ -5,10 +5,10 @@
 #include <stdint.h>
 #include "sha.h"
 
-#ifdef __LP64__
-uint32_t *sha1 (uint8_t **const, uint64_t);
+#ifdef ARCHITECTURE64
+uint32_t *sha1 (uint8_t *, uint64_t);
 #else
-uint32_t *sha1 (uint8_t **const, uint32_t);
+uint32_t *sha1 (uint8_t *, uint32_t);
 #endif
 
 #endif
