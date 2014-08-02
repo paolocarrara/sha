@@ -1,5 +1,4 @@
 #include "../inc/sha1.h"
-#include <stdio.h>
 
 #define Ksize		0x50
 #define Wsize		0x50
@@ -11,9 +10,9 @@ static void schedule	(uint32_t *const, const uint8_t *const);
 static uint32_t f	(const uint32_t, const uint32_t, const uint32_t, const uint32_t);
 
 #ifdef ARCHITECTURE64
-uint32_t *sha1 (uint8_t **M, uint64_t N)
+uint32_t *sha1 (uint8_t **const M, uint64_t N)
 #else
-uint32_t *sha1 (uint8_t **M, uint32_t N)
+uint32_t *sha1 (uint8_t **const M, uint32_t N)
 #endif
 {
 	#ifdef ARCHITECTURE64
@@ -25,9 +24,9 @@ uint32_t *sha1 (uint8_t **M, uint32_t N)
 
 	/*Variables of the specifications*/
 	uint32_t T;
-	uint32_t *H = malloc (Hsize*sizeof (uint32_t));
-	uint32_t *K = malloc (Ksize*sizeof(uint32_t));
-	uint32_t *W = malloc (Wsize*sizeof(uint32_t));
+	uint32_t *const H = malloc (Hsize*sizeof (uint32_t));
+	uint32_t *const K = malloc (Ksize*sizeof (uint32_t));
+	uint32_t *const W = malloc (Wsize*sizeof (uint32_t));
 	uint32_t abcde[ABCDEsize];
 
 	setKH (K, H);
@@ -41,7 +40,6 @@ uint32_t *sha1 (uint8_t **M, uint32_t N)
 		}
 
 		for (j = 0; j < 80; j++) {
-			
 			T = ROTL32(abcde[0], 5) + f(abcde[1], abcde[2], abcde[3], j) + abcde[4] + K[j] + W[j];
 			abcde[4] = abcde[3];
 			abcde[3] = abcde[2];
