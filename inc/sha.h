@@ -28,7 +28,7 @@
 
 /**/
 #define MIN_REALL_SZ	0x09
-#define MIN_PADD_VLE	0x80 
+#define DFLT_FRST_BYT	0x80
 
 /* parity macro/function */
 #define PA(a, b, c) (a^b^c)
