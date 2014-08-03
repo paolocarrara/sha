@@ -1,9 +1,9 @@
-#include "../inc/sha1.h"
+#include "../inc/sha224.h"
 
-#define Ksize		0x50
-#define Wsize		0x50
-#define Hsize		0x05
-#define ABCDEsize	0x05
+#define Ksize		0x40
+#define Wsize		0x40
+#define Hsize		0x07
+#define ABCDEFGHsize	0x08
 
 #ifdef ARCHITECTURE64
 __attribute__((always_inline, nonnull, warn_unused_result, optimize("Ofast")))
@@ -21,19 +21,15 @@ __attribute__((always_inline, nonnull, warn_unused_result, optimize("Ofast")))
 static inline uint8_t **prsng512 (uint8_t * const M, const uint32_t sz, uint32_t *const N);
 #endif
 
-__attribute__((always_inline, optimize("Ofast"), nonnull, pure, hot))
+__attribute__((always_inline, nonnull, hot, pure, optimize("Ofast")))
 static inline void schedule	(uint32_t *const, const uint8_t *const);
 
-__attribute__((always_inline, optimize("Ofast"), warn_unused_result, hot))
-static inline uint32_t f	(const uint32_t, const uint32_t, const uint32_t, const uint32_t);
-
-
 #ifdef ARCHITECTURE64
-__attribute__((flatten, optimize("Ofast","-funroll-loops")))
-uint32_t *sha1 (uint8_t *M, uint64_t sz)
+__attribute__((flatten, optimize("Ofast", "-funroll-loops")))
+uint32_t *sha224 (uint8_t *M, uint64_t sz)
 #else
-__attribute__((flatten, optimize("Ofast","-funroll-loops")))
-uint32_t *sha1 (uint8_t *M, uint32_t sz)
+__attribute__((flatten, optimize("Ofast", "-funroll-loops")))
+uint32_t *sha224 (uint8_t *M, uint32_t sz)
 #endif
 {
 	#ifdef ARCHITECTURE64
@@ -45,23 +41,40 @@ uint32_t *sha1 (uint8_t *M, uint32_t sz)
 	#endif
 	uint8_t j;
 	uint8_t **m;
-	
-	/*Variables of the specifications*/
-	uint32_t T;
-	uint32_t *const H = malloc (Hsize*sizeof (uint32_t));
-	uint32_t abcde [ABCDEsize];
-	uint32_t W [Wsize];
-	const uint32_t K [Ksize] = {	[0 ... 19] = 0x5a827999, 
-					[20 ... 39] = 0x6ed9eba1, 
-					[40 ... 59] = 0x8f1bbcdc, 
-					[60 ... 79] = 0xca62c1d6 };
 
-	H[0] = 0x67452301;
-	H[1] = 0xefcdab89;
-	H[2] = 0x98badcfe;
-	H[3] = 0x10325476;
-	H[4] = 0xc3d2e1f0;
-	
+	/* Variables of the specifications */
+	uint32_t T1, T2;
+	uint32_t *const H = malloc (Hsize*sizeof (uint32_t));
+	uint32_t Haux;
+	uint32_t abcdefgh[ABCDEFGHsize];
+	uint32_t W[Wsize];
+	const uint32_t K[Ksize] =
+       {0x428a2f98, 0x71374491, 0xb5c0fbcf, 0xe9b5dba5,
+	0x3956c25b, 0x59f111f1, 0x923f82a4, 0xab1c5ed5,
+	0xd807aa98, 0x12835b01, 0x243185be, 0x550c7dc3,
+	0x72be5d74, 0x80deb1fe, 0x9bdc06a7, 0xc19bf174,
+	0xe49b69c1, 0xefbe4786, 0x0fc19dc6, 0x240ca1cc,
+	0x2de92c6f, 0x4a7484aa, 0x5cb0a9dc, 0x76f988da,
+	0x983e5152, 0xa831c66d, 0xb00327c8, 0xbf597fc7,
+	0xc6e00bf3, 0xd5a79147, 0x06ca6351, 0x14292967,
+	0x27b70a85, 0x2e1b2138, 0x4d2c6dfc, 0x53380d13,
+	0x650a7354, 0x766a0abb, 0x81c2c92e, 0x92722c85,
+	0xa2bfe8a1, 0xa81a664b, 0xc24b8b70, 0xc76c51a3,
+	0xd192e819, 0xd6990624, 0xf40e3585, 0x106aa070,
+	0x19a4c116, 0x1e376c08, 0x2748774c, 0x34b0bcb5,
+	0x391c0cb3, 0x4ed8aa4a, 0x5b9cca4f, 0x682e6ff3,
+	0x748f82ee, 0x78a5636f, 0x84c87814, 0x8cc70208,
+	0x90befffa, 0xa4506ceb, 0xbef9a3f7, 0xc67178f2};
+
+	H[0] = 0xc1059ed8;
+	H[1] = 0x367cd507;
+	H[2] = 0x3070dd17;
+	H[3] = 0xf70e5939;
+	H[4] = 0xffc00b31;
+	H[5] = 0x68581511;
+	H[6] = 0x64f98fa7;
+	Haux = 0xbefa4fa4;
+
 	/* preprocessing */
 	M = padd512 (M, &sz);
 	m = prsng512 (M, sz, &N);
@@ -70,29 +83,36 @@ uint32_t *sha1 (uint8_t *M, uint32_t sz)
 
 		schedule (W, m[i]);
 
-		for (j = 0; j < 5; j++) {
-			abcde[j] = H[j];
+		for (j = 0; j < 7; j++) {
+			abcdefgh[j] = H[j];
 		}
+		abcdefgh[j] = Haux;
 
-		for (j = 0; j < 80; j++) {
-			T = ROTL32(abcde[0], 5) + f(abcde[1], abcde[2], abcde[3], j) + abcde[4] + K[j] + W[j];
-			abcde[4] = abcde[3];
-			abcde[3] = abcde[2];
-			abcde[2] = ROTL32(abcde[1], 30);
-			abcde[1] = abcde[0];
-			abcde[0] = T;
+		for (j = 0; j < 64; j++) {
+			T1 = abcdefgh[7] + E256_1 (abcdefgh[4]) + CH (abcdefgh[4], abcdefgh[5], abcdefgh[6]) + K[j] + W[j];
+			T2 = E256_0 (abcdefgh[0]) + MA (abcdefgh[0], abcdefgh[1], abcdefgh[2]);
+			abcdefgh[7] = abcdefgh[6];
+			abcdefgh[6] = abcdefgh[5];
+			abcdefgh[5] = abcdefgh[4];
+			abcdefgh[4] = abcdefgh[3] + T1;
+			abcdefgh[3] = abcdefgh[2];
+			abcdefgh[2] = abcdefgh[1];
+			abcdefgh[1] = abcdefgh[0];
+			abcdefgh[0] = T1 + T2;
 		}
 		
-		for (j = 0; j < 5; j++) {
-			H[j] += abcde[j];
+		for (j = 0; j < 7; j++) {
+			H[j] += abcdefgh[j];
 		}
+		Haux += abcdefgh[j];
 	}
-	
-	free (m);
+
 	free (M);
+	free (m);
 
 	return H;
 }
+
 #ifdef ARCHITECTURE64
 __attribute__((always_inline, nonnull, warn_unused_result, optimize("Ofast")))
 static inline uint8_t *padd512 (uint8_t *M, uint64_t *const sz)
@@ -143,7 +163,7 @@ static inline uint8_t **prsng512 (uint8_t * const M, const uint32_t sz, uint32_t
 	return blocks;
 }
 
-__attribute__((always_inline, optimize("Ofast"), nonnull, pure, hot))
+__attribute__((always_inline, nonnull, hot, pure, optimize("Ofast")))
 static inline void schedule (uint32_t *const W, const uint8_t *const M)
 {
 	uint8_t i;
@@ -160,25 +180,8 @@ static inline void schedule (uint32_t *const W, const uint8_t *const M)
 
 		W[i] += M[i*4+3];
 	}
-	while (i < 80) {
-		W[i] = ROTL32 (W[i-3]^W[i-8]^W[i-14]^W[i-16], 1);
+	while (i < 64) {
+		W[i] = S256_1 (W[i-2]) + W[i-7] + S256_0 (W[i-15]) + W[i-16];
 		i++;
-	}
-}
-
-__attribute__((always_inline, optimize("Ofast"), warn_unused_result, hot))
-static inline uint32_t f (const uint32_t b, const uint32_t c, const uint32_t d, const uint32_t t)
-{
-	if (t >= 60) {
-		return PA (b, c, d);
-	}
-	else if (t >= 40) {
-		return MA (b, c, d);
-	}
-	else if (t >= 20) {
-		return PA (b, c, d);
-	}
-	else {
-		return CH (b, c, d);
 	}
 }
