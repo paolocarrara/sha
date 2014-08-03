@@ -2,7 +2,7 @@
 
 #define Ksize		0x40
 #define Wsize		0x40
-#define Hsize		0x08
+#define Hsize		0x07
 #define ABCDEFGHsize	0x08
 
 #ifdef ARCHITECTURE64
@@ -38,6 +38,7 @@ uint32_t *sha224 (uint8_t *M, uint32_t sz)
 	/* Variables of the specifications */
 	uint32_t T1, T2;
 	uint32_t *const H = malloc (Hsize*sizeof (uint32_t));
+	uint32_t Haux;
 	uint32_t abcdefgh[ABCDEFGHsize];
 	uint32_t W[Wsize];
 	const uint32_t K[Ksize] =
@@ -65,7 +66,7 @@ uint32_t *sha224 (uint8_t *M, uint32_t sz)
 	H[4] = 0xffc00b31;
 	H[5] = 0x68581511;
 	H[6] = 0x64f98fa7;
-	H[7] = 0xbefa4fa4;
+	Haux = 0xbefa4fa4;
 
 	/* preprocessing */
 	M = padd512 (M, &sz);
@@ -75,9 +76,10 @@ uint32_t *sha224 (uint8_t *M, uint32_t sz)
 
 		schedule (W, m[i]);
 
-		for (j = 0; j < 8; j++) {
+		for (j = 0; j < 7; j++) {
 			abcdefgh[j] = H[j];
 		}
+		abcdefgh[j] = Haux;
 
 		for (j = 0; j < 64; j++) {
 			T1 = abcdefgh[7] + E256_1 (abcdefgh[4]) + CH (abcdefgh[4], abcdefgh[5], abcdefgh[6]) + K[j] + W[j];
@@ -92,9 +94,10 @@ uint32_t *sha224 (uint8_t *M, uint32_t sz)
 			abcdefgh[0] = T1 + T2;
 		}
 		
-		for (j = 0; j < 8; j++) {
+		for (j = 0; j < 7; j++) {
 			H[j] += abcdefgh[j];
 		}
+		Haux += abcdefgh[j];
 	}
 
 	free (M);
