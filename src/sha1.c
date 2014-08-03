@@ -108,7 +108,7 @@ static inline uint8_t *padd512 (uint8_t *M, uint32_t *const sz)
 
 	M = realloc (M, (*sz)+g+MIN_REALL_SZ);
 
-	M[(*sz)] = MIN_PADD_VLE;
+	M[(*sz)] = DFLT_FRST_BYT;
 	memset (M+(*sz)+1, 0, g+4);
 	M[(*sz)+g+8] = (*sz)*8 >> 0;
 	M[(*sz)+g+7] = (*sz)*8 >> 8;
