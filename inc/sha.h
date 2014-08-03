@@ -16,6 +16,7 @@ extern "C" {
 #include <stdlib.h>
 #include <string.h>
 #include "sha1.h"
+#include "sha224.h"
 
 /*SHA block sizes in bytes*/
 #define SHA_512_BLOCK	64
@@ -43,8 +44,19 @@ extern "C" {
 /* conditional macro/function */
 #define CH(a, b, c) ((a&b)^(~a&c))
 
-/* rot left for 32 bit values*/
+/* rot left, for 32 bit values */
 #define ROTL32(a, l) (((a)<<(l)) + ((a)>>(0x20-l)))
+
+/* rot right, for 32 bit values */
+#define ROTR32(a, l) (((a)>>(l)) + ((a)<<(0x20-l)))
+
+/* shift right, for 32 bit values */
+#define SHR(a, l) ((a)>>(l))
+
+#define E256_0(a) ((ROTR32(a, 2))^(ROTR32(a, 13))^(ROTR32(a, 22)))
+#define E256_1(a) ((ROTR32(a, 6))^(ROTR32(a, 11))^(ROTR32(a, 25)))
+#define S256_0(a) ((ROTR32(a, 7))^(ROTR32(a, 18))^(SHR(a, 3)))
+#define S256_1(a) ((ROTR32(a, 17))^(ROTR32(a, 19))^(SHR(a, 10)))
 
 #ifdef __cplusplus
 }
