@@ -17,6 +17,7 @@ extern C {
 #include <string.h>
 #include "sha1.h"
 #include "sha224.h"
+#include "sha256.h"
 
 /*SHA block sizes in bytes*/
 #define SHA_512_BLOCK	64
