@@ -15,5 +15,7 @@ Funções hash já implementadas:
 
 >SHA-224
 
+>SHA-256
+
 Nota: Todos as funções de hash foram implementadas para tamanhos arbitrariamente pequenos de mensagens.
 Tamanho máximo de uma mensagem: 2^64 bytes = 1.8446744e+19 bytes (por isso do 'arbitrariamente pequenos')
