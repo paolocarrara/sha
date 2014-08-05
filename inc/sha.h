@@ -18,6 +18,7 @@ extern "C" {
 #include "sha1.h"
 #include "sha224.h"
 #include "sha256.h"
+#include "sha512.h"
 
 /*SHA block sizes in bytes*/
 #define SHA_512_BLOCK	64
@@ -34,6 +35,7 @@ extern "C" {
 
 /**/
 #define MIN_REALL_SZ	0x09
+#define MIN_REALL_SZ2	0x11
 #define DFLT_FRST_BYT	0x80
 
 /* parity macro/function */
@@ -48,16 +50,27 @@ extern "C" {
 /* rot left, for 32 bit values */
 #define ROTL32(a, l) (((a)<<(l)) + ((a)>>(0x20-l)))
 
+/* rot left, for 64 bit values */
+#define ROTL64(a, l) (((a)<<(l)) + ((a)>>(0x40-l)))
+
 /* rot right, for 32 bit values */
 #define ROTR32(a, l) (((a)>>(l)) + ((a)<<(0x20-l)))
 
-/* shift right, for 32 bit values */
+/* rot right, for 64 bit values */
+#define ROTR64(a, l) (((a)>>(l)) + ((a)<<(0x40-l)))
+
+/* shift right*/
 #define SHR(a, l) ((a)>>(l))
 
 #define E256_0(a) ((ROTR32(a, 2))^(ROTR32(a, 13))^(ROTR32(a, 22)))
 #define E256_1(a) ((ROTR32(a, 6))^(ROTR32(a, 11))^(ROTR32(a, 25)))
 #define S256_0(a) ((ROTR32(a, 7))^(ROTR32(a, 18))^(SHR(a, 3)))
 #define S256_1(a) ((ROTR32(a, 17))^(ROTR32(a, 19))^(SHR(a, 10)))
+
+#define E512_0(a) ((ROTR64(a, 28))^(ROTR64(a, 34))^(ROTR64(a, 39)))
+#define E512_1(a) ((ROTR64(a, 14))^(ROTR64(a, 18))^(ROTR64(a, 41)))
+#define S512_0(a) ((ROTR64(a, 1))^(ROTR64(a, 8))^(SHR(a, 7)))
+#define S512_1(a) ((ROTR64(a, 19))^(ROTR64(a, 61))^(SHR(a, 6)))
 
 #ifdef __cplusplus
 }
