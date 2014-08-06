@@ -110,7 +110,7 @@ uint64_t *sha512_224 (uint8_t *M, uint64_t sz)
 	return H;
 }
 #else
-uint64_t *sha512 (uint8_t *M, uint32_t sz)
+uint64_t *sha512_224 (uint8_t *M, uint32_t sz)
 {
 	printf ("Error: no sha512 hash encryption function for 32bit architecture\n");
 	return NULL;

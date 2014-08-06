@@ -1,8 +1,8 @@
-#include "../inc/sha512.h"
+#include "../inc/sha512_256.h"
 
 #define Ksize		0x50
 #define Wsize		0x50
-#define Hsize		0x08
+#define Hsize		0x04
 #define ABCDEFGHsize	0x08
 
 #ifdef ARCHITECTURE64
@@ -20,7 +20,7 @@ static uint8_t **prsng1024	(uint8_t * const M, const uint32_t sz, uint32_t *cons
 static void schedule		(uint64_t *const, const uint8_t *const);
 
 #ifdef ARCHITECTURE64
-uint64_t *sha512 (uint8_t *M, uint64_t sz)
+uint64_t *sha512_256 (uint8_t *M, uint64_t sz)
 {
 	uint64_t i;
 	uint64_t N;
@@ -30,6 +30,10 @@ uint64_t *sha512 (uint8_t *M, uint64_t sz)
 	/* Variables of the specifications */
 	uint64_t T1, T2;
 	uint64_t *const H = malloc (Hsize*sizeof (uint64_t));
+	uint64_t Haux1;
+	uint64_t Haux2;
+	uint64_t Haux3;
+	uint64_t Haux4;
 	uint64_t abcdefgh[ABCDEFGHsize];
 	uint64_t W[Wsize];
 	const uint64_t K[Ksize] =
@@ -50,14 +54,14 @@ uint64_t *sha512 (uint8_t *M, uint64_t sz)
 		0x113f9804bef90dae, 0x1b710b35131c471b, 0x28db77f523047d84, 0x32caab7b40c72493, 0x3c9ebe0a15c9bebc, 
 		0x431d67c49c100d4c, 0x4cc5d4becb3e42b6, 0x597f299cfc657e2a, 0x5fcb6fab3ad6faec, 0x6c44198c4a475817};
 
-	H[0] = 0x6a09e667f3bcc908;
-	H[1] = 0xbb67ae8584caa73b;
-	H[2] = 0x3c6ef372fe94f82b;
-	H[3] = 0xa54ff53a5f1d36f1;
-	H[4] = 0x510e527fade682d1;
-	H[5] = 0x9b05688c2b3e6c1f;
-	H[6] = 0x1f83d9abfb41bd6b;
-	H[7] = 0x5be0cd19137e2179;
+	H[0] = 0x22312194fc2bf72c;
+	H[1] = 0x9f555fa3c84c64c2;
+	H[2] = 0x2393b86b6f53b151;
+	H[3] = 0x963877195940eabd;
+	Haux1 = 0x96283ee2a88effe3;
+	Haux2 = 0xbe5e1e2553863992;
+	Haux3 = 0x2b0199fc2c85b8aa;
+	Haux4 = 0x0eb72ddc81c52ca2;
 
 	/* preprocessing */
 	M = padd1024 (M, &sz);
@@ -67,9 +71,13 @@ uint64_t *sha512 (uint8_t *M, uint64_t sz)
 
 		schedule (W, m[i]);
 
-		for (j = 0; j < 8; j++) {
+		for (j = 0; j < 4; j++) {
 			abcdefgh[j] = H[j];
 		}
+		abcdefgh[4] = Haux1;
+		abcdefgh[5] = Haux2;
+		abcdefgh[6] = Haux3;
+		abcdefgh[7] = Haux4;
 
 		for (j = 0; j < 80; j++) {
 			T1 = abcdefgh[7] + E512_1 (abcdefgh[4]) + CH (abcdefgh[4], abcdefgh[5], abcdefgh[6]) + K[j] + W[j];
@@ -84,9 +92,13 @@ uint64_t *sha512 (uint8_t *M, uint64_t sz)
 			abcdefgh[0] = T1 + T2;
 		}		
 
-		for (j = 0; j < 8; j++) {
+		for (j = 0; j < 4; j++) {
 			H[j] += abcdefgh[j];
 		}
+		Haux1 = abcdefgh[4];
+		Haux2 = abcdefgh[5];
+		Haux3 = abcdefgh[6];
+		Haux4 = abcdefgh[7];
 	}
 
 	free (M);
@@ -95,7 +107,7 @@ uint64_t *sha512 (uint8_t *M, uint64_t sz)
 	return H;
 }
 #else
-uint64_t *sha512 (uint8_t *M, uint32_t sz)
+uint64_t *sha512_256 (uint8_t *M, uint32_t sz)
 {
 	printf ("Error: no sha512 hash encryption function for 32bit architecture\n");
 	return NULL;
