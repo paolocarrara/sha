@@ -51,7 +51,6 @@ uint64_t *sha512 (uint8_t *M, uint64_t sz)
 		0x113f9804bef90dae, 0x1b710b35131c471b, 0x28db77f523047d84, 0x32caab7b40c72493, 0x3c9ebe0a15c9bebc, 
 		0x431d67c49c100d4c, 0x4cc5d4becb3e42b6, 0x597f299cfc657e2a, 0x5fcb6fab3ad6faec, 0x6c44198c4a475817};
 
-
 	H[0] = 0x6a09e667f3bcc908;
 	H[1] = 0xbb67ae8584caa73b;
 	H[2] = 0x3c6ef372fe94f82b;
@@ -63,7 +62,6 @@ uint64_t *sha512 (uint8_t *M, uint64_t sz)
 
 	/* preprocessing */
 	M = padd1024 (M, &sz);
-
 	m = prsng1024 (M, sz, &N);
 
 	for (i = 0; i < N; i++) {
@@ -85,9 +83,7 @@ uint64_t *sha512 (uint8_t *M, uint64_t sz)
 			abcdefgh[2] = abcdefgh[1];
 			abcdefgh[1] = abcdefgh[0];
 			abcdefgh[0] = T1 + T2;
-		printf ("(%u)%lx %lx %lx %lx %lx %lx %lx %lx\n", j, abcdefgh[0],abcdefgh[1],abcdefgh[2],abcdefgh[3],abcdefgh[4],abcdefgh[5],abcdefgh[6],abcdefgh[7]);
-		}
-		
+		}		
 
 		for (j = 0; j < 8; j++) {
 			H[j] += abcdefgh[j];
@@ -162,28 +158,28 @@ static void schedule (uint64_t *const W, const uint8_t *const M)
 	uint8_t i;
 
 	for (i = 0; i < 16; i++) {
-		W[i] = M[i*4];
+		W[i] = M[i*8];
 		W[i] = W[i] << 8;
 
-		W[i] += M[i*4+1];
+		W[i] += M[i*8+1];
 		W[i] = W[i] << 8;
 
-		W[i] += M[i*4+2];
+		W[i] += M[i*8+2];
 		W[i] = W[i] << 8;
 
-		W[i] += M[i*4+3];
+		W[i] += M[i*8+3];
 		W[i] = W[i] << 8;
 
-		W[i] += M[i*4+4];
+		W[i] += M[i*8+4];
 		W[i] = W[i] << 8;
 
-		W[i] += M[i*4+5];
+		W[i] += M[i*8+5];
 		W[i] = W[i] << 8;
 
-		W[i] += M[i*4+6];
+		W[i] += M[i*8+6];
 		W[i] = W[i] << 8;
 
-		W[i] += M[i*4+7];
+		W[i] += M[i*8+7];
 	}
 	while (i < 80) {
 		W[i] = S512_1 (W[i-2]) + W[i-7] + S512_0 (W[i-15]) + W[i-16];

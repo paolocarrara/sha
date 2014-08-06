@@ -50,9 +50,6 @@ extern "C" {
 /* rot left, for 32 bit values */
 #define ROTL32(a, l) (((a)<<(l)) + ((a)>>(0x20-l)))
 
-/* rot left, for 64 bit values */
-#define ROTL64(a, l) (((a)<<(l)) + ((a)>>(0x40-l)))
-
 /* rot right, for 32 bit values */
 #define ROTR32(a, l) (((a)>>(l)) + ((a)<<(0x20-l)))
 
